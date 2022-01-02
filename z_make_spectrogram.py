@@ -87,10 +87,6 @@ def pad_trunc(wf, sr, max_s):
       wf = torch.cat((pad_begin, wf, pad_end), 1)
     return wf
 
-#preamplify signals:
-def emphasize(wf,pre_emphasis = 0.97):
-    ampwf = torch.cat((wf[:,:1],wf[:,1:] - 0.97 * wf[:,:-1]),1)
-    return ampwf
     
 #%%
 #test audio process

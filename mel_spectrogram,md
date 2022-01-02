@@ -1,8 +1,6 @@
 ## Spectrogram:
 Create a spectrogram from a audio signal.
 
-
-
 Args:
 1. 短时傅里叶：
    
