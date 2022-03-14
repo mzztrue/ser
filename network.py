@@ -24,109 +24,6 @@ def load_pretrained_net(model,path):
             i = i + 1
     model.load_state_dict(model_dict)
 
-
-class DA_Alex(nn.Module):
-    def __init__(self, num_classes=5):
-        super(DA_Alex, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-            nn.Conv2d(64, 192, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-            nn.Conv2d(192, 384, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(384, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Dropout(),
-            nn.Linear(256 * 6 * 6, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True)
-        )
-        self.bottleneck = nn.Sequential(
-            nn.Linear(4096, 256),
-            nn.ReLU(inplace=True)
-        )
-        self.mmd = MMD_loss(kernel_type='rbf')
-        self.final_classifier = nn.Sequential(
-            nn.Linear(256, num_classes)
-        )
-        
-    def forward(self, source, target):
-        source = self.features(source)
-        source = source.view(source.size(0), -1)
-        source = self.classifier(source)
-        source = self.bottleneck(source)
-        mmdloss = 0.
-        if self.training:
-            target = self.features(target)
-            target = target.view(target.size(0), -1)
-            target = self.classifier(target)
-            target = self.bottleneck(target)
-            mmdloss += self.mmd(source, target)
-        result = self.final_classifier(source)
-
-        return result, mmdloss
-
-class DA_Alex_FC1(nn.Module):
-    def __init__(self, num_classes=5):
-        super(DA_Alex_FC1, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-            nn.Conv2d(64, 192, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-            nn.Conv2d(192, 384, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(384, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Dropout(),
-            nn.Linear(256 * 6 * 6, 4096),
-            nn.ReLU(inplace=True),
-        )
-        self.mmd = MMD_loss(kernel_type='rbf')
-        self.bottleneck = nn.Sequential(#bottleneck is different from original architecture
-            nn.Dropout(),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Linear(4096, 256),
-            nn.ReLU(inplace=True),
-        )
-        self.final_classifier = nn.Sequential( 
-            nn.Linear(256, num_classes)
-        )
-        
-    def forward(self, source, target):
-        source = self.features(source)
-        source = source.view(source.size(0), -1)
-        source = self.classifier(source)
-        mmdloss = 0.
-        if self.training:
-            target = self.features(target)
-            target = target.view(target.size(0), -1)
-            target = self.classifier(target)
-            mmdloss += self.mmd(source, target)
-
-        source = self.bottleneck(source)
-        result = self.final_classifier(source)
-
-        return result, mmdloss
-    
 class Alexnet_finetune(nn.Module):
     def __init__(self, num_classes=5):
         super(Alexnet_finetune, self).__init__()
@@ -167,8 +64,154 @@ class Alexnet_finetune(nn.Module):
         input = self.classifier(input)
         input = self.bottleneck(input)
         result = self.final_classifier(input)
-
         return result
+
+
+class DA_Alex_FC1(nn.Module):
+    def __init__(self, num_classes=5):
+        super(DA_Alex_FC1, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+        )
+        self.mmd = MMD_loss(kernel_type='rbf')
+
+        self.final_classifier = nn.Sequential( 
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, 256),
+            nn.ReLU(inplace=True),
+            nn.Linear(256, num_classes)
+        )
+        
+    def forward(self, source, target):
+        source = self.features(source)
+        source = source.view(source.size(0), -1)
+        source = self.classifier(source)
+        mmdloss = 0.
+        if self.training:
+            target = self.features(target)
+            target = target.view(target.size(0), -1)
+            target = self.classifier(target)
+            mmdloss += self.mmd(source, target)          
+        result = self.final_classifier(source)
+
+        return result, mmdloss
+    
+
+class DA_Alex_FC2(nn.Module):
+    def __init__(self, num_classes=5):
+        super(DA_Alex, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True)
+        )
+
+        self.mmd = MMD_loss(kernel_type='rbf')
+        self.final_classifier = nn.Sequential(
+            nn.Linear(4096, 256),
+            nn.ReLU(inplace=True),
+            nn.Linear(256, num_classes)
+        )
+        
+    def forward(self, source, target):
+        source = self.features(source)
+        source = source.view(source.size(0), -1)
+        source = self.classifier(source)
+        mmdloss = 0.
+        if self.training:
+            target = self.features(target)
+            target = target.view(target.size(0), -1)
+            target = self.classifier(target)
+            mmdloss += self.mmd(source, target)
+        result = self.final_classifier(source)
+
+        return result, mmdloss
+
+class DA_Alex_FC3(nn.Module):
+    def __init__(self, num_classes=5):
+        super(DA_Alex, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, 256),
+            nn.ReLU(inplace=True)
+        )
+
+        self.mmd = MMD_loss(kernel_type='rbf')
+        self.final_classifier = nn.Sequential(
+            nn.Linear(256, num_classes)
+        )
+        
+    def forward(self, source, target):
+        source = self.features(source)
+        source = source.view(source.size(0), -1)
+        source = self.classifier(source)
+        mmdloss = 0.
+        if self.training:
+            target = self.features(target)
+            target = target.view(target.size(0), -1)
+            target = self.classifier(target)
+            mmdloss += self.mmd(source, target)
+        result = self.final_classifier(source)
+
+        return result, mmdloss
+
 
 
 class LeNet_finetune(nn.Module):
