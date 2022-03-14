@@ -98,10 +98,9 @@ class DA_Alex_FC1(nn.Module):
             nn.Dropout(),
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
-
         )
         self.mmd = MMD_loss(kernel_type='rbf')
-        self.bottleneck = nn.Sequential(
+        self.bottleneck = nn.Sequential(#bottleneck is different from original architecture
             nn.Dropout(),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
@@ -116,14 +115,14 @@ class DA_Alex_FC1(nn.Module):
         source = self.features(source)
         source = source.view(source.size(0), -1)
         source = self.classifier(source)
-        source = self.bottleneck(source)
         mmdloss = 0.
         if self.training:
             target = self.features(target)
             target = target.view(target.size(0), -1)
             target = self.classifier(target)
-            target = self.bottleneck(target)
             mmdloss += self.mmd(source, target)
+
+        source = self.bottleneck(source)
         result = self.final_classifier(source)
 
         return result, mmdloss
@@ -150,20 +149,26 @@ class Alexnet_finetune(nn.Module):
             nn.Dropout(),
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
+        )
+        self.bottleneck = nn.Sequential(#bottleneck is different from original architecture(which is 4096-4096-1000)
             nn.Dropout(),
             nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, 256),
+            nn.ReLU(inplace=True),
         )
-        self.final_classifier = nn.Sequential(
-            nn.Linear(4096, num_classes)
+        self.final_classifier = nn.Sequential( 
+            nn.Linear(256, num_classes)
         )
 
     def forward(self, input):
-        x = self.features(input)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        output = self.final_classifier(x)
-        return output
+        input = self.features(input)
+        input = input.view(input.size(0), -1)
+        input = self.classifier(input)
+        input = self.bottleneck(input)
+        result = self.final_classifier(input)
+
+        return result
 
 
 class LeNet_finetune(nn.Module):
