@@ -10,10 +10,21 @@ from train_test_save import train,dadcnn_train,test,save_checkpoint
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
 
-MYROOT = 'D:/ser_local_repo/ser'
-MODELROOT = 'E:/projects/ser/pretrained_model'
-DATAROOT ='E:/projects/ser/database'
-TBROOT = 'D:/ser_local_repo/ser/tb'
+#-------------------------------------------
+# path on local machine
+#-------------------------------------------
+# MYROOT = 'D:/ser_local_repo/ser'
+# MODELROOT = 'E:/projects/ser/pretrained_model'
+# DATAROOT ='E:/projects/ser/database'
+# TBROOT = 'D:/ser_local_repo/ser/tb'
+
+#-------------------------------------------
+# path on colab
+#-------------------------------------------
+MYROOT = '/content/drive/MyDrive/ser'
+MODELROOT = '/content/drive/MyDrive/asset/pretrained_model'
+DATAROOT ='/content/drive/MyDrive/asset/database'
+TBROOT = '/content/drive/MyDrive/tb'
 
 #-----------------------------------------------------------
 # change parameter
