@@ -129,10 +129,11 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # load model
     #------------------------------------------------------------------------------------
 
-    #-----------------------------------------------------------------
-    # architecture: pretrained_alexnet + fc layer1 + mmd + the rest
-    #-----------------------------------------------------------------
+    # #-----------------------------------------------------------------
+    # # architecture: pretrained_alexnet + fc layer1 + mmd + the rest
+    # #-----------------------------------------------------------------
     # arch ='da_alexfc1'
+    # da=1
     # model = network.DA_Alex_FC1(num_classes=len(data_classes))
 
     # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
@@ -142,12 +143,24 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained alexnet without mmd
     #-----------------------------------------------------------------
-    arch ='alex'
-    model = network.Alexnet_finetune(num_classes=len(data_classes))
+    # arch ='alex'
+    # da=0
+    # model = network.Alexnet_finetune(num_classes=len(data_classes))
 
-    alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
-    network.load_pretrained_net(model,alexnet_path)
-    print('Load pretrained alexnet parameters complete\n')
+    # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
+    # network.load_pretrained_net(model,alexnet_path)
+    # print('Load pretrained alexnet parameters complete\n')
+
+    #-----------------------------------------------------------------
+    # architecture: pretrained vgg11bn without mmd
+    #-----------------------------------------------------------------
+    arch ='vgg11bn'
+    da=0
+    model = network.VGG_finetune(num_classes=len(data_classes))
+
+    vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
+    network.load_pretrained_net(model,vggbn11_path)
+    print('Load pretrained vggbn11 parameters complete\n')
 
 
     #------------------------------------------------------------------
@@ -200,7 +213,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #--------------------------------
     # train,test,save
     #--------------------------------
-    best_acc = 0.3
+    best_acc = 0.28
 
     for epoch in range(1, epochs+1):
 
