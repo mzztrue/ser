@@ -31,11 +31,22 @@ TBROOT = '/content/drive/MyDrive/tb'
 #-----------------------------------------------------------
 duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
 
+# para = dict(
+#     learning_rate = [1e-5,1e-4,1e-3]
+#     ,batch_size = [8,16,64,512]
+#     ,alpha = [100.0,1.0,0.01]
+#     ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
+# )
+
+#----------------------------------------
+# check the situation without mmd layer
+#----------------------------------------
+
 para = dict(
-    batch_size = [8,16,64,512]
-    ,alpha = [100.0,1.0,0.01]
-    ,learning_rate = [1e-5,1e-4,1e-3]
-    ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
+    learning_rate = [1e-5]
+    ,batch_size = [16]
+    ,alpha=[0]
+    ,duo = ['enter2casia']
 )
 
 para_values = [v for v in para.values()]
@@ -43,8 +54,8 @@ para_values = [v for v in para.values()]
 #--------------------------------
 # iterate parameter
 #--------------------------------
-for batch_size, alpha, learning_rate, duo in product(*para_values):
-    print(alpha, batch_size,learning_rate, duo)
+for learning_rate, batch_size, alpha, duo in product(*para_values):
+    print(learning_rate, batch_size, alpha, duo)
 
 
     #----------------------------------------------
@@ -114,15 +125,34 @@ for batch_size, alpha, learning_rate, duo in product(*para_values):
         source_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_en_list)
         target_data = audioset.Audioset(DATAROOT, en_text, en_file, ca_en_list)    
 
-    #-------------------------------------------------------------
-    # load model, create optimizer and training criterion
-    #-------------------------------------------------------------
-    arch ='da_alex1'
-    model = network.DA_Alex_FC1(num_classes=len(data_classes))
+    #------------------------------------------------------------------------------------
+    # load model
+    #------------------------------------------------------------------------------------
+
+    #-----------------------------------------------------------------
+    # architecture: pretrained_alexnet + fc layer1 + mmd + the rest
+    #-----------------------------------------------------------------
+    # arch ='da_alexfc1'
+    # model = network.DA_Alex_FC1(num_classes=len(data_classes))
+
+    # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
+    # network.load_pretrained_net(model,alexnet_path)
+    # print('Load pretrained alexnet parameters complete\n')
+
+    #-----------------------------------------------------------------
+    # architecture: pretrained alexnet without mmd
+    #-----------------------------------------------------------------
+    arch ='alex'
+    model = network.Alexnet_finetune(num_classes=len(data_classes))
 
     alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
     network.load_pretrained_net(model,alexnet_path)
     print('Load pretrained alexnet parameters complete\n')
+
+
+    #------------------------------------------------------------------
+    # create optimizer and training criterion
+    #------------------------------------------------------------------
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -132,6 +162,7 @@ for batch_size, alpha, learning_rate, duo in product(*para_values):
     epochs = 100
 
     parameters = duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
+
     #--------------------------------
     # make tensorboard dir
     #--------------------------------
@@ -172,29 +203,53 @@ for batch_size, alpha, learning_rate, duo in product(*para_values):
     best_acc = 0.3
 
     for epoch in range(1, epochs+1):
+
+
+
+        # #----------------------------------------------------------------------------------------------------------------------------------------
+        # # train with mmd
+        # #--------------------------------
+        # acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
+
+        # writer.add_scalar("Lss/Epochs", lss, epoch)
+        # writer.add_scalar("Acc/Epochs", acc, epoch)
+        # writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
+        # writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
+        # #--------------------------------
+        # # test with mmd
+        # #--------------------------------       
+        # t_acc,t_uar,cm = test(device, target_loader, model,da=1)
+        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
+        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
+        # f.flush()
+        # writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
+        # writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+        #----------------------------------------------------------------------------------------------------------------------------------------
+
+
+        #----------------------------------------------------------------------------------------------------------------------------------------
+        # train without mmd
         #--------------------------------
-        # train
-        #--------------------------------
-        acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
+        acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
 
         writer.add_scalar("Lss/Epochs", lss, epoch)
         writer.add_scalar("Acc/Epochs", acc, epoch)
-        writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
-        writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
-
         #--------------------------------
-        # test
-        #--------------------------------       
-        t_acc,t_uar,cm = test(device, target_loader, model,da=1)
+        # test without mmd
+        #--------------------------------
+        t_acc,t_uar,cm = test(device, target_loader, model,da=0)
         print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
         print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
         
         f.flush()
-
         writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
         writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+        #----------------------------------------------------------------------------------------------------------------------------------------
+
 
         #--------------------------------
         #save

@@ -5,69 +5,6 @@ import shutil
 
 from tools import get_uar
 
-
-def train(device, source_loader, model, criterion, optimizer, epoch):
-    
-    corrects = 0
-    total = 0
-    total_loss = 0.
-
-    model.train()
-    for source_input in source_loader:
-        data, labels = source_input
-        data,labels = data.to(device), labels.to(device)
-
-        preds = model(data)  
-        print(preds,labels)      
-        loss = criterion(preds, labels)
-        corrects += preds.argmax(dim=1).eq(labels).sum().item()
-        total += len(labels)
-        total_loss += loss.item()*len(labels) 
-
-        optimizer.zero_grad()
-        loss.backward()     
-        optimizer.step()
-
-    print("train:",preds.argmax(dim=1), labels)
-    acc = corrects/total
-    lss = total_loss / total
-
-    return acc,lss
-    
-def test(device, target_loader, model,da=1):
-    corrects = 0
-    total = 0
-    
-    all_preds = torch.tensor([]).long()
-    all_labels = torch.tensor([]).long()
-
-    model.eval()
-    with torch.no_grad():
-        for target_input in target_loader:
-            data, labels = target_input
-            data, labels = data.to(device), labels.to(device)
-            if(da):
-                preds, _ = model(data, data)
-            else:
-                preds = model(data)#.long()
-
-            corrects += preds.argmax(dim=1).eq(labels).sum().item()
-            total += len(labels)
-            all_labels = torch.cat((all_labels, labels.cpu()),dim=0)
-            all_preds = torch.cat((all_preds, preds.cpu()),dim=0)
-       
-    acc = corrects/total
-    # print("test:",all_preds.argmax(dim=1), all_labels)
-    cm = confusion_matrix((all_labels), all_preds.argmax(dim=1),normalize=None)
-    uar = get_uar(cm)
-    return acc,uar,cm
-
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename)
-    if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
-        print("best saved")        
-
 def dadcnn_train(device,source_loader, target_loader, model, criterion, optimizer, epoch, alpha):
     
     model.train()
@@ -113,3 +50,65 @@ def dadcnn_train(device,source_loader, target_loader, model, criterion, optimize
     mean_mmd_lss = total_mmd_lss/total
 
     return acc, lss, mean_clf_lss, mean_mmd_lss
+
+def train(device, source_loader, model, criterion, optimizer, epoch):
+    
+    corrects = 0
+    total = 0
+    total_loss = 0.
+
+    model.train()
+    for source_input in source_loader:
+        data, labels = source_input
+        data,labels = data.to(device), labels.to(device)
+
+        preds = model(data)        
+        loss = criterion(preds, labels)
+        corrects += preds.argmax(dim=1).eq(labels).sum().item()
+        total += len(labels)
+        total_loss += loss.item()*len(labels) 
+
+        optimizer.zero_grad()
+        loss.backward()     
+        optimizer.step()
+
+    # print("train:",preds.argmax(dim=1), labels)
+    acc = corrects/total
+    lss = total_loss / total
+
+    return acc,lss
+    
+def test(device, target_loader, model,da=1):
+    corrects = 0
+    total = 0
+    
+    all_preds = torch.tensor([]).long()
+    all_labels = torch.tensor([]).long()
+
+    model.eval()
+    with torch.no_grad():
+        for target_input in target_loader:
+            data, labels = target_input
+            data, labels = data.to(device), labels.to(device)
+            if(da):
+                preds, _ = model(data, data)
+            else:
+                preds = model(data)#.long()
+
+            corrects += preds.argmax(dim=1).eq(labels).sum().item()
+            total += len(labels)
+            all_labels = torch.cat((all_labels, labels.cpu()),dim=0)
+            all_preds = torch.cat((all_preds, preds.cpu()),dim=0)
+       
+    acc = corrects/total
+    # print("test:",all_preds.argmax(dim=1), all_labels)
+    cm = confusion_matrix((all_labels), all_preds.argmax(dim=1),normalize=None)
+    uar = get_uar(cm)
+    return acc,uar,cm
+
+def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
+    torch.save(state, filename)
+    if is_best:
+        shutil.copyfile(filename, 'model_best.pth.tar')
+        print("best saved")        
+
