@@ -63,7 +63,7 @@ class Audioset(Dataset):
                     return idx
 
         emo = label_2_cross_entrophy_class(emo, self.labeltype)
-        label = torch.tensor(emo, dtype = torch.long)
+        label = torch.tensor(emo, dtype = torch.long)#nn.CrossEntropyLoss expects its label input to be of type torch.Long
 
         aud = torchaudio.load(aud_dir)
         waveform, old_sample_rate = aud[0], aud[1]
