@@ -10,13 +10,17 @@ from train_test_save import train,dadcnn_train,test,save_checkpoint
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
 
+#--------------------------------------------------
+# CHANGE ***TWO*** THINGS: MODEL AND TRAIN TEST SELECTION
+#----------------------------------------------
+
 #-------------------------------------------
 # path on local machine
 #-------------------------------------------
-# MYROOT = 'D:/ser_local_repo/ser'
-# MODELROOT = 'E:/projects/ser/pretrained_model'
-# DATAROOT ='E:/projects/ser/database'
-# TBROOT = 'D:/ser_local_repo/ser/tb'
+MYROOT = 'D:/ser_local_repo/ser'
+MODELROOT = 'E:/projects/ser/pretrained_model'
+DATAROOT ='E:/projects/ser/database'
+TBROOT = 'D:/ser_local_repo/ser/tb'
 
 #-------------------------------------------
 # path on colab
@@ -153,8 +157,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
-    # architecture: pretrained vgg11bn without mmd
+    # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
+<<<<<<< HEAD
     # arch ='vgg11bn'
     # da=0
     # model = network.VGG_finetune(num_classes=len(data_classes))
@@ -167,6 +172,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
     arch ='vgg11bn'
+=======
+    arch ='vgg11bn_fc2'
+>>>>>>> 3df1f16cd21e4a32c6df94d41c49e58745ce611c
     da=1
     model = network.DA_VGG_FC2(num_classes=len(data_classes))
 
@@ -174,6 +182,16 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     network.load_pretrained_net(model,vggbn11_path)
     print('Load pretrained vggbn11 parameters complete\n')
 
+    #-----------------------------------------------------------------
+    # architecture: pretrained vgg11bn without mmd
+    #-----------------------------------------------------------------
+    # arch ='vgg11bn'
+    # da=0
+    # model = network.VGG_finetune(num_classes=len(data_classes))
+
+    # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
+    # network.load_pretrained_net(model,vggbn11_path)
+    # print('Load pretrained vggbn11 parameters complete\n')
 
     #------------------------------------------------------------------
     # create optimizer and training criterion
