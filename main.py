@@ -23,6 +23,7 @@ from itertools import product
 #-------------------------------------------
 MYROOT = '/content/drive/MyDrive/ser'
 MODELROOT = '/content/drive/MyDrive/asset/pretrained_model'
+SAVEROOT = '/content/drive/MyDrive/asset/model'
 DATAROOT ='/content/drive/MyDrive/asset/database'
 TBROOT = '/content/drive/MyDrive/tb'
 
@@ -45,7 +46,7 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
-    ,alpha=[0]
+    ,alpha=[1.0,10.0,20.0]
     ,duo = ['enter2casia']
 )
 
@@ -154,9 +155,20 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn without mmd
     #-----------------------------------------------------------------
+    # arch ='vgg11bn'
+    # da=0
+    # model = network.VGG_finetune(num_classes=len(data_classes))
+
+    # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
+    # network.load_pretrained_net(model,vggbn11_path)
+    # print('Load pretrained vggbn11 parameters complete\n')
+
+    #-----------------------------------------------------------------
+    # architecture: pretrained vgg11bn with mmd
+    #-----------------------------------------------------------------
     arch ='vgg11bn'
-    da=0
-    model = network.VGG_finetune(num_classes=len(data_classes))
+    da=1
+    model = network.DA_VGG_FC2(num_classes=len(data_classes))
 
     vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
     network.load_pretrained_net(model,vggbn11_path)
@@ -219,48 +231,48 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
 
 
 
-        # #----------------------------------------------------------------------------------------------------------------------------------------
-        # # train with mmd
-        # #--------------------------------
-        # acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
-
-        # writer.add_scalar("Lss/Epochs", lss, epoch)
-        # writer.add_scalar("Acc/Epochs", acc, epoch)
-        # writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
-        # writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
-        # #--------------------------------
-        # # test with mmd
-        # #--------------------------------       
-        # t_acc,t_uar,cm = test(device, target_loader, model,da=1)
-        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
-        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        # f.flush()
-        # writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
-        # writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
         #----------------------------------------------------------------------------------------------------------------------------------------
-
-
-        #----------------------------------------------------------------------------------------------------------------------------------------
-        # train without mmd
+        # train with mmd
         #--------------------------------
-        acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+        acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
 
         writer.add_scalar("Lss/Epochs", lss, epoch)
         writer.add_scalar("Acc/Epochs", acc, epoch)
+        writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
+        writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
         #--------------------------------
-        # test without mmd
-        #--------------------------------
-        t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        # test with mmd
+        #--------------------------------       
+        t_acc,t_uar,cm = test(device, target_loader, model,da=1)
         print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
         print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        
         f.flush()
         writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
         writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+        #----------------------------------------------------------------------------------------------------------------------------------------
+
+
+        # #----------------------------------------------------------------------------------------------------------------------------------------
+        # # train without mmd
+        # #--------------------------------
+        # acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+
+        # writer.add_scalar("Lss/Epochs", lss, epoch)
+        # writer.add_scalar("Acc/Epochs", acc, epoch)
+        # #--------------------------------
+        # # test without mmd
+        # #--------------------------------
+        # t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
+        # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
+        
+        # f.flush()
+        # writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
+        # writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
         #----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -277,7 +289,11 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
                 ,tag = parameters +'-'+ str(epoch) + '\n' + 'train_acc:'+ str('%.4f'%acc)+ 'test_acc:'+ str('%.4f'%t_acc) + 'test_uar:' + str('%.4f'%t_uar)
                 )
         
-        checkpoint_name= MODELROOT+'/'+parameters+'.pth.tar'
+        save_dir = os.path.join(MODELROOT,"best_saved")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        checkpoint_name=  os.path.join(save_dir,parameters+'.pth.tar')
+
         save_checkpoint({
         'epoch': epoch ,
         'arch': arch,
