@@ -46,11 +46,13 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 # check the situation without mmd layer
 #----------------------------------------
-
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
-    ,alpha=[10.0, 0.1,100.0,0.01]
+<<<<<<< HEAD
+=======
+    ,alpha=[10.0,100.0,1.0]
+>>>>>>> d6baa44b5171ec3c2abd33456be0726f04db026c
     ,duo = ['enter2casia']
 )
 
@@ -137,9 +139,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    # arch ='da_alexfc1'
+    # arch ='da_alexfc3'
     # da=1
-    # model = network.DA_Alex_FC1(num_classes=len(data_classes))
+    # model = network.DA_Alex_FC3(num_classes=len(data_classes))
 
     # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
     # network.load_pretrained_net(model,alexnet_path)
@@ -159,6 +161,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn without mmd
     #-----------------------------------------------------------------
+<<<<<<< HEAD
     # arch ='vgg11bn'
     # da=0
     # model = network.VGG_finetune(num_classes=len(data_classes))
@@ -170,6 +173,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
+=======
+>>>>>>> d6baa44b5171ec3c2abd33456be0726f04db026c
     arch ='vgg11bn_fc2'
     da=1
     model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
@@ -291,7 +296,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
 
 
         #--------------------------------
-        #save
+        # save
         #--------------------------------
         is_best = t_uar > best_acc
         best_acc = max(t_uar, best_acc)

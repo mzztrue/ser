@@ -328,7 +328,6 @@ class VGG_finetune(nn.Module):
         self.feature = feature
         self.classifier = nn.Sequential(
             nn.Linear(7 * 7 * 512, 4096),
-            # nn.Linear(512, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
@@ -343,6 +342,8 @@ class VGG_finetune(nn.Module):
         output = self.classifier(output)
 
         return output
+    
+
 
 def make_layers(cfg, batch_norm=False):
     layers = []
@@ -399,10 +400,10 @@ class DA_VGG11bn_FC2(nn.Module):
             nn.Dropout(),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
-            nn.Dropout(),
             )
         self.mmd = MMD_loss(kernel_type='rbf')
         self.final_classifier = nn.Sequential(
+            nn.Dropout(),
             nn.Linear(4096, num_classes)
             )
     
