@@ -328,7 +328,6 @@ class VGG_finetune(nn.Module):
         self.feature = feature
         self.classifier = nn.Sequential(
             nn.Linear(7 * 7 * 512, 4096),
-            # nn.Linear(512, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
@@ -343,9 +342,8 @@ class VGG_finetune(nn.Module):
         output = self.classifier(output)
 
         return output
-<<<<<<< HEAD
     
-=======
+
 
 def make_layers(cfg, batch_norm=False):
     layers = []
@@ -376,7 +374,6 @@ def VGG19bn_finetune():
 class DA_VGG11bn_FC2(nn.Module):
     def __init__(self,num_classes=5,batch_norm = True):
         super(DA_VGG11bn_FC2, self).__init__()
->>>>>>> 43f869285fb655a3046a04e579e802d8b6d4c0d2
         cfg = {
     'A': [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
