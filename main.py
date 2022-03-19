@@ -10,19 +10,24 @@ from train_test_save import train,dadcnn_train,test,save_checkpoint
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
 
+#--------------------------------------------------
+# CHANGE ***TWO*** THINGS: MODEL AND TRAIN TEST SELECTION
+#----------------------------------------------
+
 #-------------------------------------------
 # path on local machine
 #-------------------------------------------
-# MYROOT = 'D:/ser_local_repo/ser'
-# MODELROOT = 'E:/projects/ser/pretrained_model'
-# DATAROOT ='E:/projects/ser/database'
-# TBROOT = 'D:/ser_local_repo/ser/tb'
+MYROOT = 'D:/ser_local_repo/ser'
+MODELROOT = 'E:/projects/ser/pretrained_model'
+DATAROOT ='E:/projects/ser/database'
+TBROOT = 'D:/ser_local_repo/ser/tb'
 
 #-------------------------------------------
 # path on colab
 #-------------------------------------------
 MYROOT = '/content/drive/MyDrive/ser'
 MODELROOT = '/content/drive/MyDrive/asset/pretrained_model'
+SAVEROOT = '/content/drive/MyDrive/asset/model'
 DATAROOT ='/content/drive/MyDrive/asset/database'
 TBROOT = '/content/drive/MyDrive/tb'
 
@@ -44,7 +49,10 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
+<<<<<<< HEAD
     ,alpha=[10.0,0.1,5.0,15.0]
+=======
+>>>>>>> 43f869285fb655a3046a04e579e802d8b6d4c0d2
     ,duo = ['enter2casia']
 )
 
@@ -151,8 +159,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
-    # architecture: pretrained vgg11bn without mmd
+    # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
+<<<<<<< HEAD
     # arch ='vgg11bn'
     # da=0
     # model = network.VGG_finetune(num_classes=len(data_classes))
@@ -164,9 +173,36 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
+<<<<<<< HEAD
+    # arch ='vgg11bn'
+    # da=0
+    # model = network.VGG_finetune(num_classes=len(data_classes))
+=======
+=======
+    arch ='vgg11bn_fc2'
+>>>>>>> 3df1f16cd21e4a32c6df94d41c49e58745ce611c
+    da=1
+    model = network.DA_VGG_FC2(num_classes=len(data_classes))
+>>>>>>> 43f869285fb655a3046a04e579e802d8b6d4c0d2
+
+    # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
+    # network.load_pretrained_net(model,vggbn11_path)
+    # print('Load pretrained vggbn11 parameters complete\n')
+
+    #-----------------------------------------------------------------
+<<<<<<< HEAD
+    # architecture: pretrained vgg11bn with mmd
+    #-----------------------------------------------------------------
     # arch ='vgg11bn_fc2'
     # da=1
     # model = network.DA_VGG_FC2(num_classes=len(data_classes))
+=======
+    # architecture: pretrained vgg11bn without mmd
+    #-----------------------------------------------------------------
+    # arch ='vgg11bn'
+    # da=0
+    # model = network.VGG_finetune(num_classes=len(data_classes))
+>>>>>>> 43f869285fb655a3046a04e579e802d8b6d4c0d2
 
     # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
     # network.load_pretrained_net(model,vggbn11_path)
@@ -286,7 +322,11 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
                 ,tag = parameters +'-'+ str(epoch) + '\n' + 'train_acc:'+ str('%.4f'%acc)+ 'test_acc:'+ str('%.4f'%t_acc) + 'test_uar:' + str('%.4f'%t_uar)
                 )
         
-        checkpoint_name= MODELROOT+'/'+parameters+'.pth.tar'
+        save_dir = os.path.join(MODELROOT,"best_saved")
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        checkpoint_name=  os.path.join(save_dir,parameters+'.pth.tar')
+
         save_checkpoint({
         'epoch': epoch ,
         'arch': arch,

@@ -243,41 +243,6 @@ class LeNet_finetune(nn.Module):
         result = self.final_classifier(x)
         return result
 
-class DA_LeNet(nn.Module):
-    def __init__(self, num_classes=5):
-        super(DA_LeNet, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2,2)            
-        )
-        self.classifier = nn.Sequential(
-            nn.Linear(16*53*53, 120),
-            nn.ReLU(inplace=True),
-            nn.Linear(120,84),
-            nn.ReLU(inplace=True)     
-        )
-        self.mmd = MMD_loss(kernel_type='rbf')
-        self.final_classifier = nn.Sequential(
-            nn.Linear(84,num_classes)
-        )
-
-    def forward(self, source, target):
-        x = self.features(source)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        mmdloss = 0.
-        if self.training:
-            y = self.features(target)
-            y = y.view(y.size(0), -1)
-            y = self.classifier(y)
-            mmdloss += self.mmd(x, y)
-        result = self.final_classifier(x)
-        return result, mmdloss
-
 class DA_LeNet_FC1(nn.Module):
     def __init__(self, num_classes=5):
         super(DA_LeNet_FC1, self).__init__()
@@ -350,53 +315,68 @@ class DA_LeNet_FC2(nn.Module):
         result = self.final_classifier(x)
         return result, mmdloss
 
-class VGG_finetune(nn.Module):
-    def __init__(self,num_classes=5,batch_norm = True):
-        super(VGG_finetune, self).__init__()
-        cfg = {
+cfg = {
     'A': [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
     'C': [64, 64, 'M', 128, 128, 'M', 256, 256, 256,      'M', 512, 512, 512,      'M', 512, 512, 512,      'M'],
     'D': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
-    }
-        layers = []
-        input_channel = 3
-        for l in cfg['D']:
-            if l == 'M':
-                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
-                continue
-            layers += [nn.Conv2d(input_channel, l, kernel_size=3, padding=1)] # stride默认为1,即保持图像尺寸不变
-            if batch_norm == True:
-                layers += [nn.BatchNorm2d(l)]
-            layers += [nn.ReLU(inplace=True)]
-            input_channel = l
+}
 
-
-        self.features = nn.Sequential(*layers)
+class VGG_finetune(nn.Module):
+    def __init__(self, feature, num_class=5):
+        super().__init__()
+        self.feature = feature
         self.classifier = nn.Sequential(
             nn.Linear(7 * 7 * 512, 4096),
+            # nn.Linear(512, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
-            
-            )
-        self.final_classifier = nn.Sequential(
-            nn.Linear(4096, num_classes)
-            )
-        
-    def forward(self,input):
-        x = self.features(input)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        output = self.final_classifier(x)
+            nn.Linear(4096, num_class)
+        )
+
+    def forward(self, x):
+        output = self.feature(x)
+        output = output.view(output.size()[0], -1)
+        output = self.classifier(output)
 
         return output
+<<<<<<< HEAD
     
-class DA_VGG_FC2(nn.Module):
+=======
+
+def make_layers(cfg, batch_norm=False):
+    layers = []
+    input_channel = 3
+    for l in cfg:
+        if l == 'M':
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            continue
+        layers += [nn.Conv2d(input_channel, l, kernel_size=3, padding=1)] # stride默认为1,即保持图像尺寸不变
+        if batch_norm == True:
+            layers += [nn.BatchNorm2d(l)]
+        layers += [nn.ReLU(inplace=True)]
+        input_channel = l
+
+    return nn.Sequential(*layers)
+
+
+def VGG11bn_finetune():
+    return VGG_finetune(make_layers(cfg['A'], batch_norm=True))
+def VGG13bn_finetune():
+    return VGG_finetune(make_layers(cfg['B'], batch_norm=True))
+def VGG16bn_finetune():
+    return VGG_finetune(make_layers(cfg['C'], batch_norm=True))
+def VGG19bn_finetune():
+    return VGG_finetune(make_layers(cfg['D'], batch_norm=True))
+
+
+class DA_VGG11bn_FC2(nn.Module):
     def __init__(self,num_classes=5,batch_norm = True):
-        super(DA_VGG_FC2, self).__init__()
+        super(DA_VGG11bn_FC2, self).__init__()
+>>>>>>> 43f869285fb655a3046a04e579e802d8b6d4c0d2
         cfg = {
     'A': [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
@@ -405,7 +385,7 @@ class DA_VGG_FC2(nn.Module):
     }
         layers = []
         input_channel = 3
-        for l in cfg['D']:
+        for l in cfg['A']:
             if l == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
                 continue

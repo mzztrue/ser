@@ -50,11 +50,6 @@ class MMD_loss(nn.Module):
                 XY = torch.mean(kernels[:batch_size, batch_size:])
                 YX = torch.mean(kernels[batch_size:, :batch_size])
                 loss = torch.mean(XX + YY - XY - YX)
-            # XX = torch.mean(kernels[:batch_size, :batch_size])
-            # YY = torch.mean(kernels[batch_size:, batch_size:])
-            # XY = torch.mean(kernels[:batch_size, batch_size:])
-            # YX = torch.mean(kernels[batch_size:, :batch_size])
-            # loss = torch.mean(XX + YY - XY - YX)
 
             torch.cuda.empty_cache()
             return loss
