@@ -17,10 +17,10 @@ from itertools import product
 #-------------------------------------------
 # path on local machine
 #-------------------------------------------
-MYROOT = 'D:/ser_local_repo/ser'
-MODELROOT = 'E:/projects/ser/pretrained_model'
-DATAROOT ='E:/projects/ser/database'
-TBROOT = 'D:/ser_local_repo/ser/tb'
+# MYROOT = 'D:/ser_local_repo/ser'
+# MODELROOT = 'E:/projects/ser/pretrained_model'
+# DATAROOT ='E:/projects/ser/database'
+# TBROOT = 'D:/ser_local_repo/ser/tb'
 
 #-------------------------------------------
 # path on colab
@@ -50,7 +50,7 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
-    ,alpha=[1.0,10.0,20.0]
+    ,alpha=[10.0, 0.1,100.0,0.01]
     ,duo = ['enter2casia']
 )
 
@@ -135,7 +135,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #------------------------------------------------------------------------------------
 
     # #-----------------------------------------------------------------
-    # # architecture: pretrained_alexnet + fc layer1 + mmd + the rest
+    # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
     # arch ='da_alexfc1'
     # da=1
@@ -157,9 +157,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
-    # architecture: pretrained vgg11bn with mmd
+    # architecture: pretrained vgg11bn without mmd
     #-----------------------------------------------------------------
-<<<<<<< HEAD
     # arch ='vgg11bn'
     # da=0
     # model = network.VGG_finetune(num_classes=len(data_classes))
@@ -171,12 +170,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
-    arch ='vgg11bn'
-=======
     arch ='vgg11bn_fc2'
->>>>>>> 3df1f16cd21e4a32c6df94d41c49e58745ce611c
     da=1
-    model = network.DA_VGG_FC2(num_classes=len(data_classes))
+    model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
 
     vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
     network.load_pretrained_net(model,vggbn11_path)
@@ -187,7 +183,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # arch ='vgg11bn'
     # da=0
-    # model = network.VGG_finetune(num_classes=len(data_classes))
+    # model = network.VGG11bn_finetune(num_classes=len(data_classes))
 
     # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
     # network.load_pretrained_net(model,vggbn11_path)

@@ -360,14 +360,14 @@ def make_layers(cfg, batch_norm=False):
     return nn.Sequential(*layers)
 
 
-def VGG11bn_finetune():
-    return VGG_finetune(make_layers(cfg['A'], batch_norm=True))
-def VGG13bn_finetune():
-    return VGG_finetune(make_layers(cfg['B'], batch_norm=True))
-def VGG16bn_finetune():
-    return VGG_finetune(make_layers(cfg['C'], batch_norm=True))
-def VGG19bn_finetune():
-    return VGG_finetune(make_layers(cfg['D'], batch_norm=True))
+def VGG11bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['A'], batch_norm=True),num_class=num_class)
+def VGG13bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['B'], batch_norm=True),num_class=num_class)
+def VGG16bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['C'], batch_norm=True),num_class=num_class)
+def VGG19bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['D'], batch_norm=True),num_class=num_class)
 
 
 class DA_VGG11bn_FC2(nn.Module):
