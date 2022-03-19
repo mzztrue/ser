@@ -118,7 +118,7 @@ class DA_Alex_FC1(nn.Module):
 
 class DA_Alex_FC2(nn.Module):
     def __init__(self, num_classes=5):
-        super(DA_Alex, self).__init__()
+        super(DA_Alex_FC2, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
@@ -166,7 +166,7 @@ class DA_Alex_FC2(nn.Module):
 
 class DA_Alex_FC3(nn.Module):
     def __init__(self, num_classes=5):
-        super(DA_Alex, self).__init__()
+        super(DA_Alex_FC3, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
@@ -394,9 +394,9 @@ class VGG_finetune(nn.Module):
 
         return output
     
-class DA_VGG(nn.Module):
+class DA_VGG_FC2(nn.Module):
     def __init__(self,num_classes=5,batch_norm = True):
-        super(DA_VGG, self).__init__()
+        super(DA_VGG_FC2, self).__init__()
         cfg = {
     'A': [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
     'B': [64, 64, 'M', 128, 128, 'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
