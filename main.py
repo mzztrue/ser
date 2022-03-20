@@ -17,19 +17,18 @@ from itertools import product
 #-------------------------------------------
 # path on local machine
 #-------------------------------------------
-# MYROOT = 'D:/ser_local_repo/ser'
-# MODELROOT = 'E:/projects/ser/pretrained_model'
-# DATAROOT ='E:/projects/ser/database'
-# TBROOT = 'D:/ser_local_repo/ser/tb'
+MYROOT = 'D:/ser_local_repo/ser'
+MODELROOT = 'E:/projects/ser/pretrained_model'
+DATAROOT ='E:/projects/ser/database'
+TBROOT = 'D:/ser_local_repo/ser/tb'
 
 #-------------------------------------------
 # path on colab
 #-------------------------------------------
-MYROOT = '/content/drive/MyDrive/ser'
-MODELROOT = '/content/drive/MyDrive/asset/pretrained_model'
-SAVEROOT = '/content/drive/MyDrive/asset/model'
-DATAROOT ='/content/drive/MyDrive/asset/database'
-TBROOT = '/content/drive/MyDrive/tb'
+# MYROOT = '/content/drive/MyDrive/ser'
+# MODELROOT = '/content/drive/MyDrive/asset'
+# DATAROOT ='/content/drive/MyDrive/asset/database'
+# TBROOT = '/content/drive/MyDrive/tb'
 
 #-----------------------------------------------------------
 # change parameter
@@ -46,13 +45,20 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 # check the situation without mmd layer
 #----------------------------------------
+# para = dict(
+#     learning_rate = [1e-5]
+#     ,batch_size = [16]
+#     ,alpha=[0]
+#     ,duo = ['enter2casia']
+# )
+
+#----------------------------------------
+# check the situation with mmd layer
+#----------------------------------------
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
-<<<<<<< HEAD
-=======
     ,alpha=[10.0,100.0,1.0]
->>>>>>> d6baa44b5171ec3c2abd33456be0726f04db026c
     ,duo = ['enter2casia']
 )
 
@@ -79,8 +85,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         em_file = "emodb535_raw"
         en_em_list = [1,2,3,5,7]
         data_classes = ['angry', 'fear', 'happy', 'sad','disgust']
-        source_data = audioset.Audioset(DATAROOT, en_text, en_file, en_em_list)
-        target_data = audioset.Audioset(DATAROOT, em_text, em_file, en_em_list)
+        source_data = audioset.Audioset(DATAROOT, en_text, en_file, en_em_list,'src')
+        target_data = audioset.Audioset(DATAROOT, em_text, em_file, en_em_list,'tar')
    
     if duo == duo_code[1]:
         en_text = "enter2emodb.txt"
@@ -89,8 +95,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         em_file = "emodb535_raw"
         en_em_list = [1,2,3,5,7]
         data_classes = ['angry', 'fear', 'happy', 'sad','disgust']
-        source_data = audioset.Audioset(DATAROOT, em_text, em_file, en_em_list)
-        target_data = audioset.Audioset(DATAROOT, en_text, en_file, en_em_list)
+        source_data = audioset.Audioset(DATAROOT, em_text, em_file, en_em_list,'src')
+        target_data = audioset.Audioset(DATAROOT, en_text, en_file, en_em_list,'tar')
     
     if duo ==duo_code[2]:
         ca_text = "casia2emodb.txt"
@@ -99,8 +105,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         em_file = "emodb535_raw"
         ca_em_list = [1,2,3,4,5]
         data_classes = ['angry', 'fear', 'happy', 'sad', 'neutral']
-        source_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_em_list)
-        target_data = audioset.Audioset(DATAROOT, em_text, em_file, ca_em_list)
+        source_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_em_list,'src')
+        target_data = audioset.Audioset(DATAROOT, em_text, em_file, ca_em_list,'tar')
     
     if duo==duo_code[3]:
         ca_text = "casia2emodb.txt"
@@ -109,8 +115,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         em_file = "emodb535_raw"
         ca_em_list = [1,2,3,4,5]
         data_classes = ['angry', 'fear', 'happy', 'sad','neutral']
-        source_data = audioset.Audioset(DATAROOT, em_text, em_file, ca_em_list)
-        target_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_em_list)
+        source_data = audioset.Audioset(DATAROOT, em_text, em_file, ca_em_list,'src')
+        target_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_em_list,'tar')
     
     if duo == duo_code[4]:
         ca_text = "casia2enter.txt"
@@ -119,8 +125,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         en_file = "enterface1287_raw"
         ca_en_list = [1,2,3,5,6]
         data_classes = ['angry', 'fear', 'happy', 'sad','surprise']
-        source_data = audioset.Audioset(DATAROOT, en_text, en_file, ca_en_list)
-        target_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_en_list)
+        source_data = audioset.Audioset(DATAROOT, en_text, en_file, ca_en_list,'src')
+        target_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_en_list,'tar')
 
     if duo == duo_code[5]:
         ca_text = "casia2enter.txt"
@@ -129,8 +135,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         en_file = "enterface1287_raw"
         ca_en_list = [1,2,3,5,6]
         data_classes = ['angry', 'fear', 'happy', 'sad', 'surprise']
-        source_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_en_list)
-        target_data = audioset.Audioset(DATAROOT, en_text, en_file, ca_en_list)    
+        source_data = audioset.Audioset(DATAROOT, ca_text, ca_file, ca_en_list,'src')
+        target_data = audioset.Audioset(DATAROOT, en_text, en_file, ca_en_list,'tar')    
 
     #------------------------------------------------------------------------------------
     # load model
@@ -139,13 +145,13 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    # arch ='da_alexfc3'
-    # da=1
-    # model = network.DA_Alex_FC3(num_classes=len(data_classes))
-
-    # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
-    # network.load_pretrained_net(model,alexnet_path)
-    # print('Load pretrained alexnet parameters complete\n')
+    arch ='da_alexfc3'
+    da=1
+    model = network.DA_Alex_FC3(num_classes=len(data_classes))
+    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
+    network.load_pretrained_net(model,alexnet_path)
+    print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained alexnet without mmd
@@ -153,35 +159,21 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # arch ='alex'
     # da=0
     # model = network.Alexnet_finetune(num_classes=len(data_classes))
-
-    # alexnet_path = os.path.join(MODELROOT,'alexnet-owt-7be5be79.pth')
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
     # network.load_pretrained_net(model,alexnet_path)
     # print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
-    # architecture: pretrained vgg11bn without mmd
-    #-----------------------------------------------------------------
-<<<<<<< HEAD
-    # arch ='vgg11bn'
-    # da=0
-    # model = network.VGG_finetune(num_classes=len(data_classes))
-
-    # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
-    # network.load_pretrained_net(model,vggbn11_path)
-    # print('Load pretrained vggbn11 parameters complete\n')
-
-    #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
-=======
->>>>>>> d6baa44b5171ec3c2abd33456be0726f04db026c
-    arch ='vgg11bn_fc2'
-    da=1
-    model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
-
-    vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
-    network.load_pretrained_net(model,vggbn11_path)
-    print('Load pretrained vggbn11 parameters complete\n')
+    # arch ='vgg11bn_fc2'
+    # da=1
+    # model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # vggbn11_path = os.path.join(pretrained_root,'vgg11_bn-6002323d.pth')
+    # network.load_pretrained_net(model,vggbn11_path)
+    # print('Load pretrained vggbn11 parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn without mmd
@@ -189,8 +181,8 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # arch ='vgg11bn'
     # da=0
     # model = network.VGG11bn_finetune(num_classes=len(data_classes))
-
-    # vggbn11_path = os.path.join(MODELROOT,'vgg11_bn-6002323d.pth')
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # vggbn11_path = os.path.join(pretrained_root,'vgg11_bn-6002323d.pth')
     # network.load_pretrained_net(model,vggbn11_path)
     # print('Load pretrained vggbn11 parameters complete\n')
 

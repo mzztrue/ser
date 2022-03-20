@@ -84,15 +84,15 @@ def pad_trunc(wf, sr, max_s=3):
 # by being more discriminative at lower frequencies and less discriminative at higher frequencies.
 
 
-  # n_fft = 1024
-  # win_length = n_fft
-  # hop_length = 512
-  # n_mels = 128
-
-n_fft = 512
+n_fft = 1024
 win_length = n_fft
-hop_length = 256
-n_mels = 40
+hop_length = 512
+n_mels = 128
+
+# n_fft = 512
+# win_length = n_fft
+# hop_length = 256
+# n_mels = 40
 
 mel_spectrogram = torchaudio.transforms.MelSpectrogram(
     sample_rate=16000,

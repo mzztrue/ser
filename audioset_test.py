@@ -15,6 +15,21 @@ from torch.utils.data import Dataset
 
 import tools
 
+def spectro_augment(spec, max_mask_pct=0.1, n_freq_masks=1, n_time_masks=1):
+    _, n_mels, n_steps = spec.shape
+    mask_value = spec.mean()
+    aug_spec = spec
+
+    freq_mask_param = max_mask_pct * n_mels
+    for _ in range(n_freq_masks):
+      aug_spec = torchaudio.transforms.FrequencyMasking(freq_mask_param)(aug_spec, mask_value)
+
+    time_mask_param = max_mask_pct * n_steps
+    for _ in range(n_time_masks):
+      aug_spec = torchaudio.transforms.TimeMasking(time_mask_param)(aug_spec, mask_value)
+
+    return aug_spec
+
 class Audioset(Dataset):
     '''build the audio dataset to retrieve audio samples'''
 
@@ -68,24 +83,56 @@ class Audioset(Dataset):
 
         aud = torchaudio.load(aud_dir)
         waveform, old_sample_rate = aud[0], aud[1]
-        waveform = tools.resample(waveform, old_sample_rate, self.sample_rate)
-        waveform = tools.rechannel(waveform, self.channel)
-        waveform = tools.pad_trunc(waveform, self.sample_rate, self.duration)
+        #check
+        print("load audio:")
+        tools.plot_waveform(waveform,old_sample_rate,title="original waveform")
+        
+        waveform = tools.resample(waveform, old_sample_rate, self.sample_rate) 
+        #check
+        print("resample audio:")
+        tools.plot_waveform(waveform,self.sample_rate,"resampled audio")
+        
+        waveform = tools.rechannel(waveform, self.channel)   
+        #check
+        print("standardize channel to mono:")
+        tools.plot_waveform(waveform,self.sample_rate,"rechanneled audio")
+        
+        waveform = tools.pad_trunc(waveform, self.sample_rate, self.duration)       
+        #check
+        print("standardize duration to 3s:")
+        tools.plot_waveform(waveform,self.sample_rate,"padded or truncated audio")
 
         mel_spec = tools.mel_spectrogram(waveform)
+        #check
+        print("Mel Spectrogram of the standardized sample:")
+        tools.plot_spectrogram(mel_spec[0])
+
+        mel_spec = spectro_augment(mel_spec)
+        print("Mel Spectrogram masked:")
+        tools.plot_spectrogram(mel_spec[0])
 
         mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
+        print("Mel Spectrogram in log scale:")
+        tools.plot_spectrogram(mel_spec[0])
 
-       #do random transform only to source domain for training, as data augmentation
+        
+
+        #do random crop and flip to mel spectrum image, as data augmentation
         preprocess = T.Compose([
             T.RandomCrop((224, 224)),
             T.RandomHorizontalFlip(),
         ])
-        
+
         if(self.domaintype=='src'):
             resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
         elif(self.domaintype=='tar'):
             resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         
+        
+        #check
+        print("Mel Spectrogram after data augmentation(random crop and flip), resizing(256 by 256) and channel repeating(3 channels):")
+        tools.plot_spectrogram(resized_mel_spec[0])
+        print("shape of the model input",resized_mel_spec.shape)
+
 
         return resized_mel_spec, label
