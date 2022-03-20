@@ -12,8 +12,9 @@ em_file = "emodb535_raw"
 en_file = "enterface1287_raw"
 en_em_list = [1,2,3,5,7]
 
-target_data = audioset_test.Audioset(DATAROOT, em_text, em_file, en_em_list)
-source_data = audioset_test.Audioset(DATAROOT, en_text, en_file, en_em_list)
+
+target_data = audioset_test.Audioset(DATAROOT, em_text, em_file, en_em_list,'tar')
+source_data = audioset_test.Audioset(DATAROOT, en_text, en_file, en_em_list,'src')
 
 BATCH_SIZE=1
 source_loader = DataLoader(source_data, BATCH_SIZE, shuffle=True)

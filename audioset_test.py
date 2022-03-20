@@ -33,10 +33,11 @@ def spectro_augment(spec, max_mask_pct=0.1, n_freq_masks=1, n_time_masks=1):
 class Audioset(Dataset):
     '''build the audio dataset to retrieve audio samples'''
 
-    def __init__(self, root, name_text, relative_aud_dir, labeltype):
+    def __init__(self, root, name_text, relative_aud_dir, labeltype, domaintype):
 
         self.aud_dir_prefix = os.path.join(root, relative_aud_dir)
         self.labeltype = labeltype
+        self.domaintype = domaintype
 
       # -------------------------------------------------------
       # standard audio sample: dur = 3s, sr = 16k, one channel
@@ -121,7 +122,12 @@ class Audioset(Dataset):
             T.RandomCrop((224, 224)),
             T.RandomHorizontalFlip(),
         ])
-        resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+
+        if(self.domaintype=='src'):
+            resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+        elif(self.domaintype=='tar'):
+            resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
+        
         
         #check
         print("Mel Spectrogram after data augmentation(random crop and flip), resizing(256 by 256) and channel repeating(3 channels):")
