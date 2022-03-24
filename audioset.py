@@ -75,17 +75,23 @@ class Audioset(Dataset):
         mel_spec = tools.mel_spectrogram(waveform)
 
         mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
-
-       #do random transform only to source domain for training, as data augmentation
-        preprocess = T.Compose([
-            T.RandomCrop((224, 224)),
-            T.RandomHorizontalFlip(),
-        ])
+        #-------------------------------------------------------------------------------------
+        # do random transform only to source domain for training, as data augmentation
+        #-------------------------------------------------------------------------------------
+        # preprocess = T.Compose([
+        #     T.RandomCrop((224, 224)),
+        #     T.RandomHorizontalFlip(),
+        # ])
         
-        if(self.domaintype=='src'):
-            resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
-        elif(self.domaintype=='tar'):
-            resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
+        # if(self.domaintype=='src'):
+        #     resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+        # elif(self.domaintype=='tar'):
+        #     resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
+        #-------------------------------------------------------------------------------------
+        
+        # no data augmentationlego
+        
+        resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         
 
         return resized_mel_spec, label
