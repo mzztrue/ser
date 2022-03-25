@@ -111,15 +111,16 @@ class Audioset(Dataset):
         mel_spec = tools.mel_spectrogram(waveform)
         #check
         print("Mel Spectrogram of the standardized sample:")
-        tools.plot_spectrogram(mel_spec[0])
-
-        # mel_spec = spectro_augment(mel_spec)
-        # print("Mel Spectrogram masked:")
         # tools.plot_spectrogram(mel_spec[0])
+        tools.plt.figure()
+        tools.plt.imshow(mel_spec.squeeze().numpy())
+
 
         mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
         print("Mel Spectrogram in log scale:")
-        tools.plot_spectrogram(mel_spec[0])
+        # tools.plot_spectrogram(mel_spec[0])
+        tools.plt.figure()
+        tools.plt.imshow(mel_spec.squeeze().numpy())
 
         
 
@@ -135,11 +136,12 @@ class Audioset(Dataset):
         elif(self.domaintype=='tar'):
             resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         
-        
+        tools.plt.figure()
+        tools.plt.imshow(resized_mel_spec[0].squeeze())
         #check
-        print("Mel Spectrogram after data augmentation(random crop and flip), resizing(256 by 256) and channel repeating(3 channels):")
-        tools.plot_spectrogram(resized_mel_spec[0])
-        print("shape of the model input",resized_mel_spec.shape)
+        # print("Mel Spectrogram after data augmentation(random crop and flip), resizing(256 by 256) and channel repeating(3 channels):")
+        # tools.plot_spectrogram(resized_mel_spec[0])
+        # print("shape of the model input",resized_mel_spec.shape)
 
 
         return resized_mel_spec, label

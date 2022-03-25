@@ -83,7 +83,6 @@ def pad_trunc(wf, sr, max_s=3):
 # The Mel-scale aims to mimic the non-linear human ear perception of sound,
 # by being more discriminative at lower frequencies and less discriminative at higher frequencies.
 
-
 n_fft = 1024
 win_length = n_fft
 hop_length = 512
