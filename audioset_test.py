@@ -15,6 +15,12 @@ from torch.utils.data import Dataset
 
 import tools
 
+def time_shift(aud, shift_limit):
+    sig,sr = aud
+    _, sig_len = sig.shape
+    shift_amt = int(random.random() * shift_limit * sig_len)
+    return (sig.roll(shift_amt), sr)
+
 def spectro_augment(spec, max_mask_pct=0.1, n_freq_masks=1, n_time_masks=1):
     _, n_mels, n_steps = spec.shape
     mask_value = spec.mean()
@@ -107,9 +113,9 @@ class Audioset(Dataset):
         print("Mel Spectrogram of the standardized sample:")
         tools.plot_spectrogram(mel_spec[0])
 
-        mel_spec = spectro_augment(mel_spec)
-        print("Mel Spectrogram masked:")
-        tools.plot_spectrogram(mel_spec[0])
+        # mel_spec = spectro_augment(mel_spec)
+        # print("Mel Spectrogram masked:")
+        # tools.plot_spectrogram(mel_spec[0])
 
         mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
         print("Mel Spectrogram in log scale:")
@@ -119,12 +125,13 @@ class Audioset(Dataset):
 
         #do random crop and flip to mel spectrum image, as data augmentation
         preprocess = T.Compose([
-            T.RandomCrop((224, 224)),
-            T.RandomHorizontalFlip(),
+            T.RandomResizedCrop((224, 224)),
+            # T.RandomHorizontalFlip(),
         ])
 
         if(self.domaintype=='src'):
-            resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+            # resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+            resized_mel_spec = preprocess(mel_spec).repeat(3, 1, 1)
         elif(self.domaintype=='tar'):
             resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         

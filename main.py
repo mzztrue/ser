@@ -18,7 +18,7 @@ from itertools import product
 # path on local machine
 #-------------------------------------------
 MYROOT = 'D:/ser_local_repo/ser'
-MODELROOT = 'E:/projects/ser/pretrained_model'
+MODELROOT = 'E:/projects/ser'
 DATAROOT ='E:/projects/ser/database'
 TBROOT = 'D:/ser_local_repo/ser/tb'
 
@@ -195,7 +195,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    epochs = 100
+    epochs = 50
 
     parameters = duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
 
@@ -239,8 +239,6 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     best_acc = 0.28
 
     for epoch in range(1, epochs+1):
-
-
 
         #----------------------------------------------------------------------------------------------------------------------------------------
         # train with mmd
