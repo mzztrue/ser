@@ -4,7 +4,8 @@ from tools import plot_spectrogram
 
 import matplotlib.pyplot as plt
 
-DATAROOT ='E:/projects/ser/database'
+# DATAROOT ='E:/projects/ser/database'
+DATAROOT ='/content/drive/MyDrive/asset/database'
 
 em_text = "emodb2enter.txt"
 en_text = "enter2emodb.txt"

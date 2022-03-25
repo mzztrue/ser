@@ -323,7 +323,7 @@ cfg = {
 }
 
 class VGG_finetune(nn.Module):
-    def __init__(self, feature, num_class=5):
+    def __init__(self, feature, num_classes=5):
         super().__init__()
         self.feature = feature
         self.classifier = nn.Sequential(
@@ -333,7 +333,7 @@ class VGG_finetune(nn.Module):
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
-            nn.Linear(4096, num_class)
+            nn.Linear(4096, num_classes)
         )
 
     def forward(self, x):
@@ -361,14 +361,14 @@ def make_layers(cfg, batch_norm=False):
     return nn.Sequential(*layers)
 
 
-def VGG11bn_finetune(num_class=5):
-    return VGG_finetune(make_layers(cfg['A'], batch_norm=True),num_class=num_class)
-def VGG13bn_finetune(num_class=5):
-    return VGG_finetune(make_layers(cfg['B'], batch_norm=True),num_class=num_class)
-def VGG16bn_finetune(num_class=5):
-    return VGG_finetune(make_layers(cfg['C'], batch_norm=True),num_class=num_class)
-def VGG19bn_finetune(num_class=5):
-    return VGG_finetune(make_layers(cfg['D'], batch_norm=True),num_class=num_class)
+def VGG11bn_finetune(num_classes=5):
+    return VGG_finetune(make_layers(cfg['A'], batch_norm=True),num_classes=num_classes)
+def VGG13bn_finetune(num_classes=5):
+    return VGG_finetune(make_layers(cfg['B'], batch_norm=True),num_classes=num_classes)
+def VGG16bn_finetune(num_classes=5):
+    return VGG_finetune(make_layers(cfg['C'], batch_norm=True),num_classes=num_classes)
+def VGG19bn_finetune(num_classes=5):
+    return VGG_finetune(make_layers(cfg['D'], batch_norm=True),num_classes=num_classes)
 
 
 class DA_VGG11bn_FC2(nn.Module):
