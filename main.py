@@ -17,18 +17,18 @@ from itertools import product
 #-------------------------------------------
 # path on local machine
 #-------------------------------------------
-# MYROOT = 'D:/ser_local_repo/ser'
-# MODELROOT = 'E:/projects/ser/pretrained_model'
-# DATAROOT ='E:/projects/ser/database'
-# TBROOT = 'D:/ser_local_repo/ser/tb'
+MYROOT = 'D:/ser_local_repo/ser'
+MODELROOT = 'E:/projects/ser/model'
+DATAROOT ='E:/projects/ser/database'
+TBROOT = 'D:/ser_local_repo/ser/tb'
 
 #-------------------------------------------
 # path on colab
 #-------------------------------------------
-MYROOT = '/content/drive/MyDrive/ser'
-MODELROOT = '/content/drive/MyDrive/asset'
-DATAROOT ='/content/drive/MyDrive/asset/database'
-TBROOT = '/content/drive/MyDrive/tb'
+# MYROOT = '/content/drive/MyDrive/ser'
+# MODELROOT = '/content/drive/MyDrive/asset'
+# DATAROOT ='/content/drive/MyDrive/asset/database'
+# TBROOT = '/content/drive/MyDrive/tb'
 
 #-----------------------------------------------------------
 # change parameter
@@ -58,7 +58,7 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
-    ,alpha=[10.0,100.0,1.0]
+    ,alpha=[10.0,1.0,100.0]
     ,duo = ['enter2casia']
 )
 
@@ -142,16 +142,30 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # load model
     #------------------------------------------------------------------------------------
 
+    #-----------------------------------------------------------------
+    # architecture: LeNet without mmd
+    #-----------------------------------------------------------------
+    # arch ='lenet'
+    # da=0
+    # model = network.LeNet_finetune(num_classes=len(data_classes))
+
+    #-----------------------------------------------------------------
+    # architecture: LeNet with mmd
+    #-----------------------------------------------------------------
+    # arch ='da_lenet'
+    # da=1
+    # model = network.DA_LeNet_FC1(num_classes=len(data_classes))
+
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    # arch ='da_alexfc3'
-    # da=1
-    # model = network.DA_Alex_FC3(num_classes=len(data_classes))
-    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
-    # alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
-    # network.load_pretrained_net(model,alexnet_path)
-    # print('Load pretrained alexnet parameters complete\n')
+    arch ='da_alexfc3'
+    da=1
+    model = network.DA_Alex_FC3(num_classes=len(data_classes))
+    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
+    network.load_pretrained_net(model,alexnet_path)
+    print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained alexnet without mmd
@@ -167,13 +181,13 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn with mmd
     #-----------------------------------------------------------------
-    arch ='vgg11bn_fc2'
-    da=1
-    model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
-    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
-    vggbn11_path = os.path.join(pretrained_root,'vgg11_bn-6002323d.pth')
-    network.load_pretrained_net(model,vggbn11_path)
-    print('Load pretrained vggbn11 parameters complete\n')
+    # arch ='vgg11bn_fc2'
+    # da=1
+    # model = network.DA_VGG11bn_FC2(num_classes=len(data_classes))
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # vggbn11_path = os.path.join(pretrained_root,'vgg11_bn-6002323d.pth')
+    # network.load_pretrained_net(model,vggbn11_path)
+    # print('Load pretrained vggbn11 parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained vgg11bn without mmd
