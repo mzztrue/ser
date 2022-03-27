@@ -78,19 +78,19 @@ class Audioset(Dataset):
         #-------------------------------------------------------------------------------------
         # do random transform only to source domain for training, as data augmentation
         #-------------------------------------------------------------------------------------
-        preprocess = T.Compose([
-            T.RandomCrop((224, 224)),
-            # T.RandomHorizontalFlip(),
-        ])
-        if(self.domaintype=='src'):
-            resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
-        elif(self.domaintype=='tar'):
-            resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
+        # preprocess = T.Compose([
+        #     T.RandomCrop((224, 224)),
+        #     T.RandomHorizontalFlip(),
+        # ])
+        # if(self.domaintype=='src'):
+        #     resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)
+        # elif(self.domaintype=='tar'):
+        #     resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         #-------------------------------------------------------------------------------------
 
         #-------------------------------------------------------------------------------------
         # no data augmentation
-        # resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
+        resized_mel_spec = F.resize(mel_spec, (224, 224)).repeat(3, 1, 1)
         #-------------------------------------------------------------------------------------
         
         #-------------------------------------------------------------------------------------

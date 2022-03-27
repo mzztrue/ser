@@ -45,22 +45,22 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 # check the situation without mmd layer
 #----------------------------------------
-# para = dict(
-#     learning_rate = [1e-5,1e-4]
-#     ,batch_size = [16]
-#     ,alpha=[0]
-#     ,duo = ['enter2casia']
-# )
+para = dict(
+    learning_rate = [1e-5,5e-6,1e-6]
+    ,batch_size = [16,32,64,128,256,512,1024]
+    ,alpha=[0]
+    ,duo = ['enter2emodb']
+)
 
 #----------------------------------------
 # check the situation with mmd layer
 #----------------------------------------
-para = dict(
-    learning_rate = [1e-5]
-    ,batch_size = [16]
-    ,alpha=[10.0,1.0,100.0]
-    ,duo = ['enter2casia']
-)
+# para = dict(
+#     learning_rate = [1e-5]
+#     ,batch_size = [16]
+#     ,alpha=[10.0]
+#     ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','casia2enter']
+# )
 
 para_values = [v for v in para.values()]
 
@@ -73,7 +73,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
 
     #----------------------------------------------
     # sort out common labels:
-    # [an, fear, hap, ntr, sad, sur, dis,bore]
+    #    [an, fear, hap, ntr, sad, sur, dis,bore]
     # en:[215, 215, 212,   0, 215, 215, 215,  0]
     # em:[127,  69,  71,  79,  62,   0,  46, 81]  
     # ca:[200, 200, 200, 200, 200, 200,   0,  0]
@@ -145,27 +145,27 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: LeNet without mmd
     #-----------------------------------------------------------------
-    # arch ='lenet'
-    # da=0
-    # model = network.LeNet_finetune(num_classes=len(data_classes))
+    arch ='lenet'
+    da=0
+    model = network.LeNet_finetune(num_classes=len(data_classes))
 
     #-----------------------------------------------------------------
     # architecture: LeNet with mmd
     #-----------------------------------------------------------------
-    # arch ='da_lenet'
+    # arch ='da_lenet_fc2'
     # da=1
-    # model = network.DA_LeNet_FC1(num_classes=len(data_classes))
+    # model = network.DA_LeNet_FC2(num_classes=len(data_classes))
 
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    arch ='da_alexfc3'
-    da=1
-    model = network.DA_Alex_FC3(num_classes=len(data_classes))
-    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
-    alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
-    network.load_pretrained_net(model,alexnet_path)
-    print('Load pretrained alexnet parameters complete\n')
+    # arch ='da_alexfc3'
+    # da=1
+    # model = network.DA_Alex_FC3(num_classes=len(data_classes))
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
+    # network.load_pretrained_net(model,alexnet_path)
+    # print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained alexnet without mmd
@@ -254,48 +254,48 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
 
     for epoch in range(1, epochs+1):
 
-        #----------------------------------------------------------------------------------------------------------------------------------------
-        # train with mmd
-        #--------------------------------
-        acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
-
-        writer.add_scalar("Lss/Epochs", lss, epoch)
-        writer.add_scalar("Acc/Epochs", acc, epoch)
-        writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
-        writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
-        #--------------------------------
-        # test with mmd
-        #--------------------------------       
-        t_acc,t_uar,cm = test(device, target_loader, model,da=1)
-        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
-        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        f.flush()
-        writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
-        writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
-        #----------------------------------------------------------------------------------------------------------------------------------------
-
-
         # #----------------------------------------------------------------------------------------------------------------------------------------
-        # # train without mmd
+        # # train with mmd
         # #--------------------------------
-        # acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+        # acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
 
         # writer.add_scalar("Lss/Epochs", lss, epoch)
         # writer.add_scalar("Acc/Epochs", acc, epoch)
+        # writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
+        # writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
         # #--------------------------------
-        # # test without mmd
-        # #--------------------------------
-        # t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        # # test with mmd
+        # #--------------------------------       
+        # t_acc,t_uar,cm = test(device, target_loader, model,da=1)
         # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
         # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        
         # f.flush()
         # writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
         # writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+        #----------------------------------------------------------------------------------------------------------------------------------------
+
+
+        #----------------------------------------------------------------------------------------------------------------------------------------
+        # train without mmd
+        #--------------------------------
+        acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+
+        writer.add_scalar("Lss/Epochs", lss, epoch)
+        writer.add_scalar("Acc/Epochs", acc, epoch)
+        #--------------------------------
+        # test without mmd
+        #--------------------------------
+        t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
+        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
+        
+        f.flush()
+        writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
+        writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
         #----------------------------------------------------------------------------------------------------------------------------------------
 
 
