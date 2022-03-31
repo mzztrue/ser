@@ -25,7 +25,7 @@ def load_pretrained_net(model,path):
     model.load_state_dict(model_dict)
 
 class Alexnet_finetune(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(Alexnet_finetune, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -55,7 +55,7 @@ class Alexnet_finetune(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.final_classifier = nn.Sequential( 
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_class)
         )
 
     def forward(self, input):
@@ -68,7 +68,7 @@ class Alexnet_finetune(nn.Module):
 
 
 class DA_Alex_FC1(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(DA_Alex_FC1, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -98,7 +98,7 @@ class DA_Alex_FC1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(4096, 256),
             nn.ReLU(inplace=True),
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_class)
         )
         
     def forward(self, source, target):
@@ -117,7 +117,7 @@ class DA_Alex_FC1(nn.Module):
     
 
 class DA_Alex_FC2(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(DA_Alex_FC2, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -147,7 +147,7 @@ class DA_Alex_FC2(nn.Module):
         self.final_classifier = nn.Sequential(
             nn.Linear(4096, 256),
             nn.ReLU(inplace=True),
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_class)
         )
         
     def forward(self, source, target):
@@ -165,7 +165,7 @@ class DA_Alex_FC2(nn.Module):
         return result, mmdloss
 
 class DA_Alex_FC3(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(DA_Alex_FC3, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -195,7 +195,7 @@ class DA_Alex_FC3(nn.Module):
 
         self.mmd = MMD_loss(kernel_type='rbf')
         self.final_classifier = nn.Sequential(
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_class)
         )
         
     def forward(self, source, target):
@@ -215,7 +215,7 @@ class DA_Alex_FC3(nn.Module):
 
 
 class LeNet_finetune(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(LeNet_finetune, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5),
@@ -233,7 +233,7 @@ class LeNet_finetune(nn.Module):
         )
 
         self.final_classifier = nn.Sequential(
-            nn.Linear(84,num_classes)
+            nn.Linear(84,num_class)
         )
 
     def forward(self, source):
@@ -244,7 +244,7 @@ class LeNet_finetune(nn.Module):
         return result
 
 class DA_LeNet_FC1(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(DA_LeNet_FC1, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5),
@@ -263,7 +263,7 @@ class DA_LeNet_FC1(nn.Module):
         self.final_classifier = nn.Sequential( 
             nn.Linear(120,84),
             nn.ReLU(inplace=True),
-            nn.Linear(84,num_classes)
+            nn.Linear(84,num_class)
         )
 
     def forward(self, source, target):
@@ -280,7 +280,7 @@ class DA_LeNet_FC1(nn.Module):
         return result, mmdloss
 
 class DA_LeNet_FC2(nn.Module):
-    def __init__(self, num_classes=5):
+    def __init__(self, num_class=5):
         super(DA_LeNet_FC2, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=6, kernel_size=5),
@@ -299,7 +299,7 @@ class DA_LeNet_FC2(nn.Module):
         )
         self.mmd = MMD_loss(kernel_type='rbf')
         self.final_classifier = nn.Sequential( 
-            nn.Linear(84,num_classes)
+            nn.Linear(84,num_class)
         )
 
     def forward(self, source, target):
@@ -323,7 +323,7 @@ cfg = {
 }
 
 class VGG_finetune(nn.Module):
-    def __init__(self, feature, num_classes=5):
+    def __init__(self, feature, num_class=5):
         super().__init__()
         self.feature = feature
         self.classifier = nn.Sequential(
@@ -333,7 +333,7 @@ class VGG_finetune(nn.Module):
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
-            nn.Linear(4096, num_classes)
+            nn.Linear(4096, num_class)
         )
 
     def forward(self, x):
@@ -361,18 +361,18 @@ def make_layers(cfg, batch_norm=False):
     return nn.Sequential(*layers)
 
 
-def VGG11bn_finetune(num_classes=5):
-    return VGG_finetune(make_layers(cfg['A'], batch_norm=True),num_classes=num_classes)
-def VGG13bn_finetune(num_classes=5):
-    return VGG_finetune(make_layers(cfg['B'], batch_norm=True),num_classes=num_classes)
-def VGG16bn_finetune(num_classes=5):
-    return VGG_finetune(make_layers(cfg['C'], batch_norm=True),num_classes=num_classes)
-def VGG19bn_finetune(num_classes=5):
-    return VGG_finetune(make_layers(cfg['D'], batch_norm=True),num_classes=num_classes)
+def VGG11bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['A'], batch_norm=True),num_class=num_class)
+def VGG13bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['B'], batch_norm=True),num_class=num_class)
+def VGG16bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['C'], batch_norm=True),num_class=num_class)
+def VGG19bn_finetune(num_class=5):
+    return VGG_finetune(make_layers(cfg['D'], batch_norm=True),num_class=num_class)
 
 
 class DA_VGG11bn_FC2(nn.Module):
-    def __init__(self,num_classes=5,batch_norm = True):
+    def __init__(self,num_class=5,batch_norm = True):
         super(DA_VGG11bn_FC2, self).__init__()
         cfg = {
     'A': [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
@@ -404,7 +404,7 @@ class DA_VGG11bn_FC2(nn.Module):
         self.mmd = MMD_loss(kernel_type='rbf')
         self.final_classifier = nn.Sequential(
             nn.Dropout(),
-            nn.Linear(4096, num_classes)
+            nn.Linear(4096, num_class)
             )
     
     def forward(self, source, target):
