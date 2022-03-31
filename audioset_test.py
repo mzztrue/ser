@@ -111,8 +111,15 @@ class Audioset(Dataset):
         mel_spec = tools.mel_spectrogram(waveform)
         #check
         print("Mel Spectrogram of the standardized sample:")
-        # tools.plt.figure()
-        # tools.plt.imshow(mel_spec.squeeze().numpy())
+        tools.plt.figure()
+        tools.plt.imshow(mel_spec.squeeze().numpy())
+        
+        print(mel_spec.size())
+        mel_spec = torch.transpose(mel_spec,1,2)
+        print(mel_spec.size())
+
+        tools.plt.figure()
+        tools.plt.imshow(mel_spec.squeeze().numpy())
 
 
         mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)

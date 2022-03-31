@@ -46,10 +46,10 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 # check the situation without mmd layer
 #----------------------------------------
 # para = dict(
-#     learning_rate = [1e-5,5e-6,1e-6]
-#     ,batch_size = [16,32,64,128,256,512,1024]
+#     learning_rate = [1e-5]
+#     ,batch_size = [512,16]
 #     ,alpha=[0]
-#     ,duo = ['enter2emodb']
+#     ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
 # )
 
 #----------------------------------------
@@ -58,8 +58,8 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [512]
-    ,alpha=[0.1,0.05,0.2,0.001]
-    ,duo = ['enter2emodb']
+    ,alpha=[1.0]
+    ,duo = ['enter2emodb', 'casia2emodb', 'enter2casia', 'casia2enter']
 )
 
 para_values = [v for v in para.values()]
@@ -149,6 +149,12 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # da=0
     # model = network.LeNet_finetune(num_classes=len(data_classes))
 
+    # # load the model checkpoint
+    # checkpoint = torch.load('E:/projects/ser/model/best_saved/enter2casia-lenet-1e-05-0-512.pth.tar')
+    # # load model weights state_dict
+    # model.load_state_dict(checkpoint['state_dict'])
+    # print('Previously trained model weights state_dict loaded...')
+
     #-----------------------------------------------------------------
     # architecture: LeNet with mmd
     #-----------------------------------------------------------------
@@ -209,7 +215,11 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    epochs = 100
+    epochs = 200
+
+    # # load trained optimizer state_dict
+    # optimizer.load_state_dict(checkpoint['optimizer'])
+    # print('Previously trained optimizer state_dict loaded...')
 
     parameters = duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
 
@@ -312,18 +322,18 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
                 ,tag = parameters +'-'+ str(epoch) + '\n' + 'train_acc:'+ str('%.4f'%acc)+ 'test_acc:'+ str('%.4f'%t_acc) + 'test_uar:' + str('%.4f'%t_uar)
                 )
         
-        save_dir = os.path.join(MODELROOT,"best_saved")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        checkpoint_name=  os.path.join(save_dir,parameters+'.pth.tar')
+            save_dir = os.path.join(MODELROOT,"best_saved")
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            checkpoint_name=  os.path.join(save_dir,parameters+'.pth.tar')
 
-        save_checkpoint({
-        'epoch': epoch ,
-        'arch': arch,
-        'state_dict': model.state_dict(),
-        'best_acc': best_acc,
-        'optimizer' : optimizer.state_dict(),
-        }, is_best,checkpoint_name)
+            save_checkpoint({
+            'epoch': epoch ,
+            'arch': arch,
+            'state_dict': model.state_dict(),
+            'best_acc': best_acc,
+            'optimizer' : optimizer.state_dict(),
+            }, is_best,checkpoint_name)
 
    
     f.close()
