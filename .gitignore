@@ -131,3 +131,7 @@ dmypy.json
 # tb folders
 flaw_tb/
 valid_tb/
+
+# others
+.pyc
+.pth
