@@ -74,7 +74,7 @@ class Audioset(Dataset):
 
         mel_spec = tools.mel_spectrogram(waveform)
 
-        # mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
+        mel_spec = torchaudio.transforms.AmplitudeToDB(top_db=80)(mel_spec)
         #-------------------------------------------------------------------------------------
         # do random transform only to source domain for training, as data augmentation
         #-------------------------------------------------------------------------------------

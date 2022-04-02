@@ -35,13 +35,6 @@ TBROOT = 'D:/ser_local_repo/ser/tb'
 #-----------------------------------------------------------
 duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
 
-# para = dict(
-#     learning_rate = [1e-5,1e-4,1e-3]
-#     ,batch_size = [8,16,64,512]
-#     ,alpha = [100.0,1.0,0.01]
-#     ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
-# )
-
 #----------------------------------------
 # check the situation without mmd layer
 #----------------------------------------
@@ -58,8 +51,8 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 para = dict(
     learning_rate = [1e-5]
     ,batch_size = [512]
-    ,alpha=[1.0]
-    ,duo = ['enter2emodb', 'casia2emodb', 'enter2casia', 'casia2enter']
+    ,alpha=[0.1]
+    ,duo = ['enter2casia', 'casia2enter']
 )
 
 para_values = [v for v in para.values()]
