@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# tb folders
+flaw_tb/
+valid_tb/
