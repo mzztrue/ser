@@ -133,5 +133,5 @@ flaw_tb/
 valid_tb/
 
 # others
-.pyc
 .tar
+_pychache_/
