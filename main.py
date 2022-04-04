@@ -40,9 +40,9 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 # para = dict(
 #     learning_rate = [1e-5]
-#     ,batch_size = [512,16]
+#     ,batch_size = [512]
 #     ,alpha=[0]
-#     ,duo = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2casia', 'casia2enter']
+#     ,duo = ['emodb2enter', 'emodb2casia']
 # )
 
 #----------------------------------------
@@ -50,9 +50,9 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 para = dict(
     learning_rate = [1e-5]
-    ,batch_size = [512]
-    ,alpha=[0.1]
-    ,duo = ['enter2casia', 'casia2enter']
+    ,batch_size = [512,16]
+    ,alpha=[1.0,0.1]
+    ,duo = ['casia2enter']
 )
 
 para_values = [v for v in para.values()]

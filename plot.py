@@ -165,8 +165,6 @@ plt.show()
 plot_spectrogram(specgram[0], title=None, ylabel='freq_bin', aspect='auto', xmax=None,ymax=None)#take a spectrum(...,freq,time)
 
 
-
-
 n_fft = 1024
 win_length = None
 hop_length = 512

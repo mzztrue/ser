@@ -112,3 +112,29 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
         shutil.copyfile(filename, 'model_best.pth.tar')
         print("best saved")        
 
+def finetune(device, source_loader, model, criterion, optimizer, epoch):
+    
+    corrects = 0
+    total = 0
+    total_loss = 0.
+
+    model.train()
+    for source_input in source_loader:
+        data, labels = source_input
+        data,labels = data.to(device), labels.to(device)
+
+        preds = model(data)        
+        loss = criterion(preds, labels)
+        corrects += preds.argmax(dim=1).eq(labels).sum().item()
+        total += len(labels)
+        total_loss += loss.item()*len(labels) 
+
+        optimizer.zero_grad()
+        loss.backward()     
+        optimizer.step()
+
+    # print("train:",preds.argmax(dim=1), labels)
+    acc = corrects/total
+    lss = total_loss / total
+
+    return acc,lss
