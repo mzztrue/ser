@@ -11,7 +11,7 @@ import torch.optim as optim
 import audioset
 from torch.utils.tensorboard import SummaryWriter
 from itertools import product
-from tfln import set_parameter_requires_grad,initialize_model
+# from tfln import set_parameter_requires_grad,initialize_model
 from sklearn.metrics import confusion_matrix
 from tools import get_uar,add_confusion_matrix
 from train_test_save import save_checkpoint
@@ -50,7 +50,7 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 num_classes = 5
 
 # Number of epochs to train for
-num_epochs = 1
+num_epochs = 500
 
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
@@ -61,7 +61,7 @@ feature_extract = True
 domain_adaptation = True
 
 #additional info
-add_info = 'FE_clfr_unfrozen'
+add_info = 'DA_FE_clfr_unfrozen'
 
 
 #----------------------------------------
@@ -78,10 +78,10 @@ add_info = 'FE_clfr_unfrozen'
 # check the situation with mmd layer
 #----------------------------------------
 para = dict(
-    learning_rate = [1e-5]
+    learning_rate = [1e-4]
     ,batch_size = [16]
-    ,alpha=[1.0]
-    ,duo = ['emodb2casia']
+    ,alpha=[0.1]
+    ,duo = ['enter2casia']
 )
 
 para_values = [v for v in para.values()]
