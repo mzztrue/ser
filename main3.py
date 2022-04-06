@@ -78,10 +78,10 @@ add_info = 'DA_FE_clfr_unfrozen'
 # check the situation with mmd layer
 #----------------------------------------
 para = dict(
-    learning_rate = [1e-4]
+    learning_rate = [1e-3]
     ,batch_size = [16]
     ,alpha=[0.1]
-    ,duo = ['enter2casia']
+    ,duo = ['casia2enter']
 )
 
 para_values = [v for v in para.values()]
@@ -170,7 +170,7 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # Create training and validation datasets
     image_datasets = {'src': source_data,'tar':target_data}
     # Create training and validation dataloaders
-    dataloaders_dict = {x: DataLoader(target_data, batch_size=batch_size, shuffle=True) for x in ['src', 'tar']}#, num_workers=4
+    dataloaders_dict = {'src': DataLoader(source_data, batch_size=batch_size, shuffle=True),'tar':DataLoader(target_data, batch_size=batch_size, shuffle=True)}#, num_workers=4
 
     # Initialize the model for this run
     # model_ft, input_size = initialize_model(model_name, num_classes, feature_extract, use_pretrained=True)
