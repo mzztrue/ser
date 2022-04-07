@@ -50,9 +50,9 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 para = dict(
     learning_rate = [1e-5]
-    ,batch_size = [512,16]
-    ,alpha=[1.0,0.1]
-    ,duo = ['casia2enter']
+    ,batch_size = [16]
+    ,alpha=[0.1]
+    ,duo = ['casia2enter','casia2emodb','enter2emodb', 'enter2casia', 'emodb2enter',  'emodb2casia' ]
 )
 
 para_values = [v for v in para.values()]
@@ -151,20 +151,20 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: LeNet with mmd
     #-----------------------------------------------------------------
-    arch ='da_lenet_fc1'
-    da=1
-    model = network.DA_LeNet_FC1(num_classes=len(data_classes))
+    # arch ='da_lenet_fc1'
+    # da=1
+    # model = network.DA_LeNet_FC1(num_classes=len(data_classes))
 
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    # arch ='da_alexfc3'
-    # da=1
-    # model = network.DA_Alex_FC3(num_classes=len(data_classes))
-    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
-    # alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
-    # network.load_pretrained_net(model,alexnet_path)
-    # print('Load pretrained alexnet parameters complete\n')
+    arch ='da_alexfc3'
+    da=1
+    model = network.DA_Alex_FC3(num_classes=len(data_classes))
+    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
+    network.load_pretrained_net(model,alexnet_path)
+    print('Load pretrained alexnet parameters complete\n')
 
     #-----------------------------------------------------------------
     # architecture: pretrained alexnet without mmd

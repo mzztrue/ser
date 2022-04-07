@@ -50,7 +50,7 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 num_classes = 5
 
 # Number of epochs to train for
-num_epochs = 500
+num_epochs = 100
 
 # Flag for feature extracting. When False, we finetune the whole model,
 #   when True we only update the reshaped layer params
@@ -78,7 +78,7 @@ add_info = 'DA_FE_clfr_unfrozen'
 # check the situation with mmd layer
 #----------------------------------------
 para = dict(
-    learning_rate = [1e-3]
+    learning_rate = [1e-5]
     ,batch_size = [16]
     ,alpha=[0.1]
     ,duo = ['casia2enter']
