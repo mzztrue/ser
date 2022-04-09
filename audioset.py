@@ -80,7 +80,6 @@ class Audioset(Dataset):
         #-------------------------------------------------------------------------------------
         # preprocess = T.Compose([
         #     T.RandomCrop((224, 224)),
-        #     T.RandomHorizontalFlip(),
         # ])
         # if(self.domaintype=='src'):
         #     resized_mel_spec = preprocess(F.resize(mel_spec, (256, 256))).repeat(3, 1, 1)

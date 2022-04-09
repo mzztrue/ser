@@ -52,7 +52,7 @@ para = dict(
     learning_rate = [1e-5]
     ,batch_size = [16]
     ,alpha=[0.1]
-    ,duo = ['emodb2casia']
+    ,duo = ['casia2enter','casia2emodb']
 
 )
 
@@ -215,13 +215,13 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    epochs = 100
+    epochs = 500
 
     # # load trained optimizer state_dict
     # optimizer.load_state_dict(checkpoint['optimizer'])
     # print('Previously trained optimizer state_dict loaded...')
 
-    parameters = duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
+    parameters = 'step-' + duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
 
     #--------------------------------
     # make tensorboard dir
@@ -284,6 +284,17 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
         f.flush()
         writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
         writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+
+        #--------------------------------
+        # step alpha
+        #--------------------------------
+        if mmd_lss < clf_lss:
+            alpha = 1.0;
+            print("alpha now is ",alpha)
+        else:
+            alpha = 0.1; 
+            print("alpha now is ",alpha)
+        
         #----------------------------------------------------------------------------------------------------------------------------------------
 
 
