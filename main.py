@@ -38,23 +38,29 @@ duo_code = ['enter2emodb', 'emodb2enter', 'casia2emodb', 'emodb2casia','enter2ca
 #----------------------------------------
 # check the situation without mmd layer
 #----------------------------------------
-# para = dict(
-#     learning_rate = [1e-5]
-#     ,batch_size = [512]
-#     ,alpha=[0]
-#     ,duo = ['emodb2enter', 'emodb2casia']
-# )
+para = dict(
+    learning_rate = [1e-3]
+    ,batch_size = [128]
+    ,alpha=[0]
+    ,duo = ['casia2enter']
+)
 
 #----------------------------------------
 # check the situation with mmd layer
 #----------------------------------------
-para = dict(
-    learning_rate = [1e-5]
-    ,batch_size = [16]
-    ,alpha=[0.1]
-    ,duo = ['emodb2casia']
-
-)
+# para = dict(
+#     learning_rate = [1e-5]
+#     ,batch_size = [16]
+#     ,alpha=[0.1]
+#     ,duo = ['enter2casia','enter2emodb','casia2enter']#fc2 'emodb2enter', 'emodb2casia','enter2casia', 'casia2enter'
+# )
+ 
+# para = dict(
+#     learning_rate = [1e-4]
+#     ,batch_size = [16]
+#     ,alpha=[0.01]
+#     ,duo = ['casia2enter']
+# )
 
 para_values = [v for v in para.values()]
 
@@ -139,9 +145,9 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #-----------------------------------------------------------------
     # architecture: LeNet without mmd
     #-----------------------------------------------------------------
-    # arch ='lenet'
-    # da=0
-    # model = network.LeNet_finetune(num_classes=len(data_classes))
+    arch ='lenet'
+    da=0
+    model = network.LeNet_finetune(num_classes=len(data_classes))
 
     # # load the model checkpoint
     # checkpoint = torch.load('E:/projects/ser/model/best_saved/casia2emodb-da_alexfc3-1e-05-0.1-16.pth.tar')
@@ -159,16 +165,16 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     # #-----------------------------------------------------------------
     # # architecture: pretrained_alexnet + fc layern + mmd + the rest
     # #-----------------------------------------------------------------
-    arch ='da_alexfc2'
-    da=1
-    model = network.DA_Alex_FC2(num_classes=len(data_classes))
-    pretrained_root = os.path.join(MODELROOT,'pretrained_model')
-    alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
-    network.load_pretrained_net(model,alexnet_path)
-    print('Load pretrained alexnet parameters complete\n')
+    # arch ='da_alexfc2'
+    # da=1
+    # model = network.DA_Alex_FC2(num_classes=len(data_classes))
+    # pretrained_root = os.path.join(MODELROOT,'pretrained_model')
+    # alexnet_path = os.path.join(pretrained_root,'alexnet-owt-7be5be79.pth')
+    # network.load_pretrained_net(model,alexnet_path)
+    # print('Load pretrained alexnet parameters complete\n')
 
     # # load the model checkpoint
-    # checkpoint = torch.load('E:/projects/ser/model/best_saved/casia2emodb-da_alexfc3-1e-05-0.1-16.pth.tar')
+    # checkpoint = torch.load('E:/projects/ser/model/best_saved/casia2enter-da_lenet_fc1-1e-05-0.01-16.pth.tar')
     # # load model weights state_dict
     # model.load_state_dict(checkpoint['state_dict'])
     # print('Previously trained model weights state_dict loaded...')
@@ -215,11 +221,12 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    epochs = 100
+    epochs = 200
 
     # # load trained optimizer state_dict
     # optimizer.load_state_dict(checkpoint['optimizer'])
     # print('Previously trained optimizer state_dict loaded...')
+    
 
     parameters = duo +'-' + arch + '-' + str(learning_rate)+ '-' + str(alpha) + '-' + str(batch_size)
 
@@ -262,50 +269,52 @@ for learning_rate, batch_size, alpha, duo in product(*para_values):
     #--------------------------------
     best_acc = 0.28
 
+    # print('resume training:',file = f)
+
     for epoch in range(1, epochs+1):
 
-        #----------------------------------------------------------------------------------------------------------------------------------------
-        # train with mmd
-        #--------------------------------
-        acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
-        print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
-
-        writer.add_scalar("Lss/Epochs", lss, epoch)
-        writer.add_scalar("Acc/Epochs", acc, epoch)
-        writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
-        writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
-        #--------------------------------
-        # test with mmd
-        #--------------------------------       
-        t_acc,t_uar,cm = test(device, target_loader, model,da=1)
-        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
-        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        f.flush()
-        writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
-        writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
-        #----------------------------------------------------------------------------------------------------------------------------------------
-
-
         # #----------------------------------------------------------------------------------------------------------------------------------------
-        # # train without mmd
+        # # train with mmd
         # #--------------------------------
-        # acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss)
-        # print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+        # acc, lss, clf_lss, mmd_lss = dadcnn_train(device, source_loader, target_loader, model, criterion, optimizer, epoch, alpha)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss)
+        # print('epoch:',epoch,'acc:',acc,'lss:',lss,'clf_lss:',clf_lss, "mmd_lss:",mmd_lss,file = f)
 
         # writer.add_scalar("Lss/Epochs", lss, epoch)
         # writer.add_scalar("Acc/Epochs", acc, epoch)
+        # writer.add_scalar("clf_lss/Epochs", clf_lss, epoch)
+        # writer.add_scalar("mmd_lss/Epochs", mmd_lss, epoch)
         # #--------------------------------
-        # # test without mmd
-        # #--------------------------------
-        # t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        # # test with mmd
+        # #--------------------------------       
+        # t_acc,t_uar,cm = test(device, target_loader, model,da=1)
         # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
         # print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
-        
         # f.flush()
         # writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
         # writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
+        #----------------------------------------------------------------------------------------------------------------------------------------
+
+
+        #----------------------------------------------------------------------------------------------------------------------------------------
+        # train without mmd
+        #--------------------------------
+        acc, lss = train(device, source_loader, model, criterion, optimizer, epoch)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss)
+        print('epoch:',epoch,'acc:',acc,'lss:',lss,file = f)
+
+        writer.add_scalar("Lss/Epochs", lss, epoch)
+        writer.add_scalar("Acc/Epochs", acc, epoch)
+        #--------------------------------
+        # test without mmd
+        #--------------------------------
+        t_acc,t_uar,cm = test(device, target_loader, model,da=0)
+        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar)
+        print('epoch:',epoch,'test_acc:',t_acc,'test_uar:',t_uar,file = f)
+        
+        f.flush()
+        writer.add_scalar("TEST_ACC/Epochs", t_acc, epoch)
+        writer.add_scalar("TESTt_UAR/Epochs", t_uar, epoch)
         #----------------------------------------------------------------------------------------------------------------------------------------
 
 
